@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Unity.IO.LowLevel.Unsafe;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using static settingsplayercustomscript;
 using Logger = Nitrous.Modules.Logger;
 
 namespace Nitrous.Components
