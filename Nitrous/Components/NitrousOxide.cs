@@ -81,8 +81,6 @@ namespace Nitrous.Components
 				GetComponent<pickupable>().attach = _attach;
 				save.attachable = _attach;
 			}
-
-			
 		}
 
 		public void Update()
