@@ -14,7 +14,7 @@ namespace Nitrous
 		public override string ID => "M_Nitrous";
 		public override string Name => "Nitrous";
 		public override string Author => "M-";
-		public override string Version => "1.0.0";
+		public override string Version => "1.1.0";
 		public override bool LoadInDB => true;
 
 		internal static Nitrous Mod;
