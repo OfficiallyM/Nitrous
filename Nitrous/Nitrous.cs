@@ -20,6 +20,7 @@ namespace Nitrous
 		internal static Nitrous Mod;
 		internal static GameObject bottle;
 		internal static AudioClip hiss;
+		internal static Texture gauge;
 
 		internal static FieldInfo mountField;
 		internal static bool mount;
@@ -44,10 +45,15 @@ namespace Nitrous
 			AssetBundle assetBundle = AssetBundle.LoadFromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream($"{nameof(Nitrous)}.nitrous"));
 			bottle = assetBundle.LoadAsset<GameObject>("bottle");
 			hiss = assetBundle.LoadAsset<AudioClip>("hiss.mp3");
+			gauge = assetBundle.LoadAsset<Texture2D>("gauge.dds");
 
 			if (itemdatabase.d.gszifon.GetComponent<NitrousOxide>() == null)
 				itemdatabase.d.gszifon.AddComponent<NitrousOxide>();
 			itemdatabase.d.gszifon.name = "Siphon or Nitrous Bottle";
+
+			if (itemdatabase.d.ggazpalack.GetComponent<Gauge>() == null)
+				itemdatabase.d.ggazpalack.AddComponent<Gauge>();
+			itemdatabase.d.ggazpalack.name += " or Nitrous Gauge";
 
 			foreach (GameObject item in itemdatabase.d.items)
 			{
@@ -67,6 +73,16 @@ namespace Nitrous
 				nitrous.AddComponent<NitrousSpawner>();
 				itemdatabase.d.items = Enumerable.Append(itemdatabase.d.items, nitrous).ToArray();
 				nitrous.GetComponentInChildren<Collider>().enabled = false;
+
+				GameObject gaugePlaceholder = new GameObject("NitrousGaugePlaceholder");
+				gaugePlaceholder.transform.SetParent(mainscript.M.transform);
+				gaugePlaceholder.SetActive(false);
+				GameObject gauge = new GameObject("Nitrous Oxide Gauge");
+				gauge.transform.SetParent(gaugePlaceholder.transform, false);
+				UnityEngine.Object.Instantiate(itemdatabase.d.ggazpalack, gauge.transform, false).transform.Rotate(0f, 180f, 0f);
+				gauge.AddComponent<GaugeSpawner>();
+				itemdatabase.d.items = Enumerable.Append(itemdatabase.d.items, gauge).ToArray();
+				gauge.GetComponentInChildren<Collider>().enabled = false;
 			}
 			catch (Exception ex)
 			{

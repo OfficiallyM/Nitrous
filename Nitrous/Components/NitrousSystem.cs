@@ -14,6 +14,7 @@ namespace Nitrous.Components
 		private bool _isBoosting = false;
 
 		private float _currentBoost = 0f;
+		private float _effectiveBoost = 0f;
 		private float _boostedModifier;
 		private float _boostedFuelConsumption;
 
@@ -22,7 +23,7 @@ namespace Nitrous.Components
 		private const float _boostRampDownSpeed = 2f;
 		private const float _bottleConsumption = 0.002f;
 		private const float _fuelUsageMultiplier = 5f;
-		private const float _tempMultiplier = 1.5f;
+		private const float _tempMultiplier = 0.75f;
 
 		public void Start()
 		{
@@ -70,9 +71,9 @@ namespace Nitrous.Components
 
 			// Fade audio in and out with boost.
 			if (_audio.isPlaying)
-				_audio.volume = _currentBoost * settingsscript.s.S.FSound * 0.75f;
+				_audio.volume = _currentBoost * settingsscript.s.S.FSound * 0.50f;
 
-            float effectiveBoost = _currentBoost * totalBoostMultiplier;
+			_effectiveBoost = _currentBoost * totalBoostMultiplier;
 
 			// Apply the power boost and increased fuel consumption.
 			engine.modifier -= _boostedModifier;
@@ -84,19 +85,19 @@ namespace Nitrous.Components
 			}
 			else
 			{
-				_boostedModifier = _coreBoostModifier * effectiveBoost;
+				_boostedModifier = _coreBoostModifier * _effectiveBoost;
 				engine.modifier += _boostedModifier;
 
-				_boostedFuelConsumption = _fuelUsageMultiplier * effectiveBoost;
+				_boostedFuelConsumption = _fuelUsageMultiplier * _effectiveBoost;
 				engine.FuelConsumption.ChangeWithoutMix(_boostedFuelConsumption);
 			}
 
 			// Bit of a power kick whilst the modifier boost increases.
-			float boostDrpm = engine.maxRpm * (1f + _coreBoostModifier * effectiveBoost * 0.2f);
+			float boostDrpm = engine.maxRpm * (1f + _coreBoostModifier * _effectiveBoost * 0.2f);
 			engine.drpm = Mathf.Max(engine.drpm, boostDrpm);
 
 			// Increase engine temperature
-			engine.temp += Time.deltaTime * _tempMultiplier * effectiveBoost;
+			engine.temp += Time.deltaTime * _tempMultiplier * _effectiveBoost;
 
 			if (_currentBoost > 0)
 			{
@@ -149,17 +150,29 @@ namespace Nitrous.Components
 			return available;
 		}
 
+		public float GetBoost() => _effectiveBoost;
+		public float GetAmount()
+		{
+			float amount = 0;
+			foreach (NitrousOxide bottle in GetUsableBottles())
+			{
+				amount += bottle.Tank.F.GetAmount();
+			}
+			return amount;
+		}
+
 #if DEBUG
 		public void OnGUI()
 		{
 			if (mainscript.M.player.Car == null || mainscript.M.player.Car != _car) return;
 
-			GUI.Button(new Rect(0, 00, 200, 20), $"Boosting: {(_isBoosting ? "yes" : "no")}");
-			GUI.Button(new Rect(0, 20, 200, 20), $"Bottles: {GetUsableBottles().Count}");
-			GUI.Button(new Rect(0, 40, 200, 20), $"Current boost: {_currentBoost}");
-			GUI.Button(new Rect(0, 60, 200, 20), $"Temp: {(_car.Engine != null ? _car.Engine.temp.ToString() : "-")}");
-			GUI.Button(new Rect(0, 80, 200, 20), $"Fuel consumption: {(_car.Engine != null ? _car.Engine.FuelConsumption.GetAmount().ToString() : "-")}");
-			GUI.Button(new Rect(0, 100, 200, 20), $"Modifier: {(_car.Engine != null ? _car.Engine.modifier.ToString() : "-")}");
+			GUI.Button(new Rect(0, 0, 200, 20),	  $"Boosting: {(_isBoosting ? "yes" : "no")}");
+			GUI.Button(new Rect(0, 20, 200, 20),  $"Bottles: {GetUsableBottles().Count}");
+			GUI.Button(new Rect(0, 40, 200, 20),  $"Current boost: {_currentBoost}");
+			GUI.Button(new Rect(0, 60, 200, 20),  $"Effective boost: {_effectiveBoost}");
+			GUI.Button(new Rect(0, 80, 200, 20),  $"Temp: {(_car.Engine != null ? _car.Engine.temp.ToString() : "-")}");
+			GUI.Button(new Rect(0, 100, 200, 20), $"Fuel consumption: {(_car.Engine != null ? _car.Engine.FuelConsumption.GetAmount().ToString() : "-")}");
+			GUI.Button(new Rect(0, 120, 200, 20), $"Modifier: {(_car.Engine != null ? _car.Engine.modifier.ToString() : "-")}");
 		}
 #endif
 	}

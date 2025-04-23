@@ -29,7 +29,11 @@ namespace Nitrous.Components
 		public void Start()
 		{
 			tosaveitemscript save = gameObject.GetComponent<tosaveitemscript>();
-			if (save == null || !ShouldReplace(save.idInSave)) return;
+			if (save == null || !ShouldReplace(save.idInSave)) 
+			{
+				enabled = false;
+				return;
+			}
 
 			System.Random random = new System.Random(save.idInSave);
 
@@ -85,6 +89,8 @@ namespace Nitrous.Components
 
 		public void Update()
 		{
+			if (!enabled) return;
+
 			// Show tank when looking at bottle.
 			fpscontroller player = mainscript.M.player;
 			if (Physics.Raycast(player.Cam.transform.position, player.Cam.transform.forward, out RaycastHit hitInfo1, player.FrayRange, (int)player.useLayer))
@@ -104,6 +110,10 @@ namespace Nitrous.Components
 
 			if (_car != null)
 			{
+				// Car doesn't have a nitrous system, add one.
+				if (_car.GetComponent<NitrousSystem>() == null)
+					_car.gameObject.AddComponent<NitrousSystem>();
+
 				// Register the mounted bottle.
 				_system = _car.GetComponent<NitrousSystem>();
 				_system.RegisterBottle(this);
