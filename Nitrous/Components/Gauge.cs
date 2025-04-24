@@ -123,9 +123,9 @@ namespace Nitrous.Components
 			compass.meter.R.material = compass.meter.OffM;
 			compass.meter.R.reflectionProbeUsage = ReflectionProbeUsage.Off;
 
+			Color color = GetMeterColour();
 			foreach (meterscript.meterstuff meterstuff in compass.meter.mutatok)
 			{
-				Color color = GetMeterColour();
 				meterstuff.mutato.minAngle = -68f;
 				meterstuff.mutato.maxAngle = 68f;
 				meterstuff.mutato.minValue = 0;
@@ -161,6 +161,8 @@ namespace Nitrous.Components
 				Transform child = _kmGauge.transform.GetChild(index);
 				if (child.name == "kmszamlalo")
 				{
+					foreach (MeshRenderer renderer in child.GetComponentsInChildren<MeshRenderer>())
+						renderer.material.color = color;
 					child.GetChild(5).gameObject.SetActive(false);
 					child.GetChild(4).gameObject.SetActive(false);
 					child.GetChild(3).gameObject.SetActive(false);
@@ -210,15 +212,26 @@ namespace Nitrous.Components
 				_tank.F.fluids.Clear();
 				_tank.F.ChangeOne(_boostColour.value, mainscript.fluidenum.water);
 				_lastColourVal = _boostColour.value;
-			}
 
-			// Set dial colour.
-			foreach (meterscript.meterstuff meterstuff in _compassMeter.mutatok)
-			{
+				// Set dial colour.
 				Color color = GetMeterColour();
-				meterstuff.mutato.OffM.color = color;
-				meterstuff.mutato.OnM.color = color;
-				meterstuff.mutato.OnM.SetColor("_EmissionColor", new Color(color.r * 0.45f, color.g * 0.45f, color.b * 0.45f));
+				foreach (meterscript.meterstuff meterstuff in _compassMeter.mutatok)
+				{
+					meterstuff.mutato.OffM.color = color;
+					meterstuff.mutato.OnM.color = color;
+					meterstuff.mutato.OnM.SetColor("_EmissionColor", new Color(color.r * 0.45f, color.g * 0.45f, color.b * 0.45f));
+				}
+
+				// Set dial text colour.
+				for (int index = 0; index < _kmGauge.transform.childCount; index++)
+				{
+					Transform child = _kmGauge.transform.GetChild(index);
+					if (child.name == "kmszamlalo")
+					{
+						foreach (MeshRenderer renderer in child.GetComponentsInChildren<MeshRenderer>())
+							renderer.material.color = color;
+					}
+				}
 			}
 
 			carscript car = GetComponentInParent<carscript>();
