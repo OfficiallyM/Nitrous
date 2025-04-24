@@ -1,4 +1,6 @@
 ﻿using Nitrous.Extensions;
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using Logger = Nitrous.Modules.Logger;
@@ -73,6 +75,7 @@ namespace Nitrous.Components
 			}
 
 			_attach = GetComponent<attachablescript>();
+			pickupable pickup = GetComponent<pickupable>();
 
 			// Attach anything mod not used, replicate the behaviour.
 			if (_attach == null)
@@ -82,9 +85,17 @@ namespace Nitrous.Components
 				attachablescript attach = itemdatabase.d.graklap.GetComponent<attachablescript>();
 				gameObject.CopyComponent(attach);
 				_attach = GetComponent<attachablescript>();
-				GetComponent<pickupable>().attach = _attach;
+				pickup.attach = _attach;
 				save.attachable = _attach;
 			}
+
+			// Fix any missing collider data.
+			_attach.C = _nitrous.GetComponentsInChildren<Collider>().ToList();
+			List<layerScript> layerScripts = new List<layerScript>();
+			foreach (Collider col in _nitrous.GetComponentsInChildren<Collider>())
+				layerScripts.Add(col.gameObject.AddComponent<layerScript>());
+			pickup.cols = layerScripts.ToArray();
+			pickup.cols2 = layerScripts.ToArray();
 		}
 
 		public void Update()
