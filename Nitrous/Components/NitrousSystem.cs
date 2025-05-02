@@ -77,7 +77,8 @@ namespace Nitrous.Components
 
 			// Apply the power boost and increased fuel consumption.
 			engine.modifier -= _boostedModifier;
-			engine.FuelConsumption.ChangeWithoutMix(-_boostedFuelConsumption);
+			if (engine.FuelConsumption.fluids.Count == 1)
+				engine.FuelConsumption.ChangeWithoutMix(-_boostedFuelConsumption, false);
 			if (_currentBoost <= 0f)
 			{
 				_boostedModifier = 0f;
@@ -88,15 +89,18 @@ namespace Nitrous.Components
 				_boostedModifier = _coreBoostModifier * _effectiveBoost;
 				engine.modifier += _boostedModifier;
 
-				_boostedFuelConsumption = _fuelUsageMultiplier * _effectiveBoost;
-				engine.FuelConsumption.ChangeWithoutMix(_boostedFuelConsumption);
+				if (engine.FuelConsumption.fluids.Count == 1)
+				{
+					_boostedFuelConsumption = _fuelUsageMultiplier * _effectiveBoost;
+					engine.FuelConsumption.ChangeWithoutMix(_boostedFuelConsumption, false);
+				}
 			}
 
 			// Bit of a power kick whilst the modifier boost increases.
 			float boostDrpm = engine.maxRpm * (1f + _coreBoostModifier * _effectiveBoost * 0.2f);
 			engine.drpm = Mathf.Max(engine.drpm, boostDrpm);
 
-			// Increase engine temperature
+			// Increase engine temperature.
 			engine.temp += Time.deltaTime * _tempMultiplier * _effectiveBoost;
 
 			if (_currentBoost > 0)

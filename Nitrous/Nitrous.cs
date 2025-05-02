@@ -5,6 +5,7 @@ using System.Reflection;
 using Nitrous.Components;
 using System.Linq;
 using Logger = Nitrous.Modules.Logger;
+using System.Collections.Generic;
 
 namespace Nitrous
 {
@@ -14,7 +15,7 @@ namespace Nitrous
 		public override string ID => "M_Nitrous";
 		public override string Name => "Nitrous";
 		public override string Author => "M-";
-		public override string Version => "1.1.1";
+		public override string Version => "1.1.2";
 		public override bool LoadInDB => true;
 
 		internal static Nitrous Mod;
@@ -31,7 +32,7 @@ namespace Nitrous
 		{
 			Mod = this;
 
-			Logger.Init();
+			Modules.Logger.Init();
 		}
 
 		public override void Config()
@@ -87,6 +88,18 @@ namespace Nitrous
 			catch (Exception ex)
 			{
 				Logger.Log($"Failed to create placeholders. Details: {ex}");
+			}
+		}
+
+		public override void OnLoad()
+		{
+			if (mainscript.M.load)
+				return;
+			// Add nitrous bottle component to the correct starter house object.
+			foreach (KeyValuePair<int, tosaveitemscript> keyValuePair in savedatascript.d.toSaveStuff)
+			{
+				if (keyValuePair.Value != null && keyValuePair.Value.id == itemdatabase.d.gszifon.GetComponent<tosaveitemscript>().id && keyValuePair.Value.gameObject.GetComponent<NitrousOxide>() == null)
+					keyValuePair.Value.gameObject.AddComponent<NitrousOxide>();
 			}
 		}
 

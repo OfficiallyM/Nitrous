@@ -68,7 +68,8 @@ namespace Nitrous.Components
 			Tank.F.maxC = 1f * _size;
 
 			// For fresh spawns, adjust fluids to match the tank size.
-			if (!save.loaded)
+			// Also prevent tank from going above capacity.
+			if (!save.loaded || Tank.F.GetAmount() > Tank.F.maxC)
 			{
 				Tank.F.fluids.Clear();
 				Tank.F.ChangeOne(Tank.F.maxC, mainscript.fluidenum.oil);
@@ -101,6 +102,7 @@ namespace Nitrous.Components
 		public void Update()
 		{
 			if (!enabled) return;
+			bool dismounted = false;
 
 			// Show tank when looking at bottle.
 			fpscontroller player = mainscript.M.player;
@@ -116,8 +118,11 @@ namespace Nitrous.Components
 			{
 				_car = _attach.targetTosave.GetComponentInParent<carscript>();
 			}
-			else
+			else if (_car != null)
+			{
+				dismounted = true;
 				_car = null;
+			}
 
 			if (_car != null)
 			{
@@ -155,7 +160,7 @@ namespace Nitrous.Components
 										mainscript.M.player.BcanMount = true;
 										mainscript.M.menu.GCF.sprite = mainscript.M.menu.IMount;
 										Nitrous.mount = true;
-										if (inputscript.i.GetKeyDown(inputscript.IN.mountdismount))
+										if (!dismounted && inputscript.i.GetKeyDown(inputscript.IN.mountdismount))
 										{
 											if (transform.root == transform)
 											{
