@@ -72,6 +72,8 @@ namespace Nitrous.Components
 			Destroy(_compass.GetComponent<partscript>());
 			Destroy(_compass.GetComponent<massScript>());
 			Destroy(_compass.GetComponent<partconditionscript>());
+			// Prevent any conflicts from compass replacement mods.
+			DestroyNonGameComponents(_compass);
 			_compass.transform.SetParent(transform, false);
 			_compass.transform.position = Vector3.zero;
 			_compass.transform.localPosition = Vector3.zero;
@@ -153,6 +155,8 @@ namespace Nitrous.Components
 			Destroy(_kmGauge.GetComponent<pickupable>());
 			Destroy(_kmGauge.GetComponent<partscript>());
 			Destroy(_kmGauge.GetComponent<massScript>());
+			// Prevent any conflicts from gauge replacement mods.
+			DestroyNonGameComponents(_kmGauge);
 			_kmGauge.transform.SetParent(_compass.transform, false);
 			_kmGauge.transform.localPosition = new Vector3(0.0f, 0.0546f, -0.005f);
 			_kmGauge.transform.localScale = Vector3.one * 1.4f;
@@ -267,6 +271,19 @@ namespace Nitrous.Components
 
 			float t = (_boostColour.value % segmentSize) / segmentSize;
 			return Color.Lerp(_colors[indexA], _colors[indexB], t);
+		}
+
+		private void DestroyNonGameComponents(GameObject target)
+		{
+			foreach (Component component in target.GetComponents<Component>())
+			{
+				Type type = component.GetType();
+				string assemblyName = type.Assembly.GetName().Name;
+				if (!(assemblyName.StartsWith("UnityEngine") || assemblyName == "Assembly-CSharp"))
+				{
+					Destroy(component);
+				}
+			}
 		}
 	}
 }

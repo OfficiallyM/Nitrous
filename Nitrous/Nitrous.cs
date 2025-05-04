@@ -15,7 +15,7 @@ namespace Nitrous
 		public override string ID => "M_Nitrous";
 		public override string Name => "Nitrous";
 		public override string Author => "M-";
-		public override string Version => "1.1.2";
+		public override string Version => "1.1.3";
 		public override bool LoadInDB => true;
 
 		internal static Nitrous Mod;
@@ -47,6 +47,7 @@ namespace Nitrous
 			bottle = assetBundle.LoadAsset<GameObject>("bottle");
 			hiss = assetBundle.LoadAsset<AudioClip>("hiss.mp3");
 			gauge = assetBundle.LoadAsset<Texture2D>("gauge.dds");
+			assetBundle.Unload(false);
 
 			if (itemdatabase.d.gszifon.GetComponent<NitrousOxide>() == null)
 				itemdatabase.d.gszifon.AddComponent<NitrousOxide>();
@@ -70,7 +71,6 @@ namespace Nitrous
 				nitrousPlaceholder.SetActive(false);
 				GameObject nitrous = new GameObject("Nitrous Oxide Bottle");
 				nitrous.transform.SetParent(nitrousPlaceholder.transform, false);
-				UnityEngine.Object.Instantiate(bottle, nitrous.transform, false).transform.Rotate(0f, 180f, 0f);
 				nitrous.AddComponent<NitrousSpawner>();
 				itemdatabase.d.items = Enumerable.Append(itemdatabase.d.items, nitrous).ToArray();
 				nitrous.GetComponentInChildren<Collider>().enabled = false;
@@ -80,14 +80,13 @@ namespace Nitrous
 				gaugePlaceholder.SetActive(false);
 				GameObject gauge = new GameObject("Nitrous Oxide Gauge");
 				gauge.transform.SetParent(gaugePlaceholder.transform, false);
-				UnityEngine.Object.Instantiate(itemdatabase.d.ggazpalack, gauge.transform, false).transform.Rotate(0f, 180f, 0f);
 				gauge.AddComponent<GaugeSpawner>();
 				itemdatabase.d.items = Enumerable.Append(itemdatabase.d.items, gauge).ToArray();
 				gauge.GetComponentInChildren<Collider>().enabled = false;
 			}
 			catch (Exception ex)
 			{
-				Logger.Log($"Failed to create placeholders. Details: {ex}");
+				Modules.Logger.Log($"Failed to create placeholders. Details: {ex}");
 			}
 		}
 
